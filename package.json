@@ -1,0 +1,42 @@
+{
+  "name": "vue_audioplayer",
+  "version": "1.0.0",
+  "description": "Audio Player with controls written on Vue.js",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --mode=production --env production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/katehiz/vue_audioplayer.git"
+  },
+  "keywords": [
+    "vue",
+    "js",
+    "audioplayer"
+  ],
+  "author": "Stanislav Shchukin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/katehiz/vue_audioplayer/issues"
+  },
+  "homepage": "https://github.com/katehiz/vue_audioplayer#readme",
+  "dependencies": {
+    "vue": "^2.6.10"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.11.4",
+    "@babel/preset-env": "^7.11.0",
+    "babel-loader": "^8.1.0",
+    "css-loader": "^4.2.2",
+    "mini-css-extract-plugin": "^0.10.0",
+    "node-sass": "^4.14.1",
+    "path": "^0.12.7",
+    "sass-loader": "^10.0.1",
+    "vue-loader": "^15.9.3",
+    "vue-style-loader": "^4.1.2",
+    "vue-template-compiler": "^2.6.10",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
+  }
+}
