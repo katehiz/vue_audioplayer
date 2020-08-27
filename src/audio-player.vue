@@ -64,6 +64,7 @@
 
 <script>
 	export default {
+		name: 'vue-audio-player',
 		directives: {
 			// Директива для обработки щклчка вне элемента. Принимает только функцию в качестве значения
 			clickOutside: {
@@ -265,7 +266,3 @@
 		}
 	}
 </script>
-
-<style scoped type="scss">
-    @import "scss/audio-player.scss";
-</style>

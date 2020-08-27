@@ -3,14 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <title>Vue.js Аудиоплеер</title>
-    <link rel="stylesheet" href="./css/vue-audio-player.css">
-    <script src="./js/vue-audio-player.js"></script>
+    <link rel="stylesheet" href="css/vue-audio-player.css">
+    <style>
+        html {
+            font-size: 16px;
+            font-family: "Trebuchet MS", Arial, sans-serif;
+        }
+        .wrapper {
+            width: 100%;
+            max-width: 1024px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 2rem;
+        }
+        .pagetitle {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .mb-2 {
+            margin-bottom: 2rem;
+        }
+        .mb-3 {
+            margin-bottom: 3rem;
+        }
+        code {
+            color: #17a083;
+            font-family: Consolas, Arial, sans-serif;
+            padding: 0 5px;
+            outline: 1px solid #acd8c4;
+        }
+    </style>
 </head>
 <body>
     <div class="wrapper">
-        <div id="app">
+        <h1 class="pagetitle">Vue Audio Player</h1>
+        <p class="mb-3">To activate, use the component tag <code>vue-audio-player</code> and pass the <code>url</code> parameter to it</p>
+        <div id="application">
             <vue-audio-player url="./audio/Freddie_Mercury-Dont_Stop_Me_Now.mp3"></vue-audio-player>
         </div>
     </div>
+    <script src="js/vue-audio-player.js" defer></script>
 </body>
 </html>

@@ -49,7 +49,13 @@ const config = {
 			filename: 'css/vue-audio-player.css',
 			publicPath: 'dist/'
 		})
-	]
+	],
+	resolve: {
+		alias: {
+			'vue': 'vue/dist/vue.js'
+		},
+		extensions: ['*', '.js', '.vue']
+	}
 };
 
 module.exports = (env, options) => {
