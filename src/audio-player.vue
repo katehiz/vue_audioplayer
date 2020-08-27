@@ -64,7 +64,6 @@
 
 <script>
 	export default {
-		name : 'post-audio-player',
 		directives: {
 			// Директива для обработки щклчка вне элемента. Принимает только функцию в качестве значения
 			clickOutside: {

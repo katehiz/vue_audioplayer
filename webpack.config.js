@@ -1,10 +1,10 @@
 const path = require("path");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
-const miniCss = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const config = {
 	entry: {
-		build: "./src/index.js"
+		'js/vue-audio-player': "./src/index.js"
 	},
 	output: {
 		path: path.resolve(__dirname, "./dist/"),
@@ -21,7 +21,8 @@ const config = {
 				loader: 'vue-loader',
 				options: {
 					loaders: {
-						js: 'babel-loader'
+						js: 'babel-loader',
+						scss: 'vue-style-loader!css-loader!sass-loader'
 					}
 				}
 			},
@@ -33,9 +34,9 @@ const config = {
 				}]
 			},
 			{
-				test: /\.scss$/,
+				test: /\.(sc|c)ss$/,
 				use: [
-					miniCss.loader,
+					MiniCssExtractPlugin.loader,
 					'css-loader',
 					'sass-loader',
 				]
@@ -44,8 +45,9 @@ const config = {
 	},
 	plugins: [
 		new VueLoaderPlugin(),
-		new miniCss({
-			filename: 'style.css',
+		new MiniCssExtractPlugin({
+			filename: 'css/vue-audio-player.css',
+			publicPath: 'dist/'
 		})
 	]
 };

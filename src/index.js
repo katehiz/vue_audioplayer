@@ -1,10 +1,10 @@
 import Vue from "vue";
-import audioPlayer from "./audio-player.vue";
+import vueAudioPlayer from "./audio-player.vue";
 
-window.vueApp = new Vue({
-	name: 'audio-player',
+new Vue({
+	name: 'vueAudioPlayer',
 	el: '#app',
 	components: {
-		audioPlayer
+		vueAudioPlayer
 	}
 });
