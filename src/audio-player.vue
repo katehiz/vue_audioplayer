@@ -100,7 +100,8 @@
 				speedRate: 1.0,
 				currentTime: 0,
 				totalTime: 0,
-				timer: null,
+				tickTimer: 0,
+				listenTimer: 0, // прослушанных секунд
 				html5Supported: true,
 				isIE: false,
 				showSpeedList: false,
@@ -115,12 +116,37 @@
 		},
 		computed: {},
 		watch: {
+			played(val) {
+				if (val === false) return;
+				// Статистика прослушивания трека. Проверяем в sessionStorage ключ play-check_[postId]
+				if (!sessionStorage.getItem('play-post_' + this.postId)) {
+					// сохраняем просмотр в хранилище
+					sessionStorage.setItem('play-post_' + this.postId, Date.now());
+					// отправляем статистику
+					// ym([ym id],'reachGoal','audio_play')
+				} else console.log('Вы уже прослушали пост № ' + this.postId);
+			},
 			muted(val) {
+				// обновляем реактивное значение
 				this.track.muted = val;
 			},
 			// отслеживает изменение реактивного значения volume в ползунке и меняет громкость функцией setVolumeLevel()
 			volume(val) {
 				this.setVolumeLevel(val);
+			},
+			currentTime(val) {
+				// если время подошло к концу - останавливаем воспроизведение, обнуляем все данные и таймеры
+				if (val >= this.totalTime) this.stop()
+			},
+			// Статистика прослушивания трека  течение 30 сек. Проверяем в sessionStorage ключ post-listen-timer_[postId]
+			listenTimer(val) {
+				if (val !== 30) return;
+				if (!sessionStorage.getItem('post-listen-timer_' + this.postId)) {
+					// сохраняем просмотр в хранилище
+					sessionStorage.setItem('post-listen-timer_' + this.postId, Date.now());
+					// отправляем статистику
+					// ym([ym id],'reachGoal','audio_30')
+				} else console.log('Вы уже прослушали пост № ' + this.postId + ' 30 секунд');
 			}
 		},
 		methods: {
@@ -133,28 +159,27 @@
 			// стоп/пауза
 			playPause() {
 				if (this.played) {
-					this.track.pause();
-					this.played = false;
 					this.stopTimer();
+					this.played = false;
+					this.track.pause();
 				} else {
 					this.track.play();
+					// по хорошему надо повесить на событие аудиообъекта 'play'
 					this.played = true;
 					this.startTimer();
 				}
 			},
 			// остановка возпроизведения с обнулением таймера - if you need
-			/*stop() {
-				if (!this.stopped) {
-					this.played = false;
-					this.paused = true;
-					this.stopTimer();
-					this.track.pause();
-					this.track.currentTime = 0;
-				}
-			},*/
+			stop() {
+				this.stopTimer();
+				this.track.pause();
+				this.played = false;
+				this.paused = true;
+				this.track.currentTime = 0;
+				this.progress = 0;
+			},
 			// переключатель режима mute/unmute
 			mute() {
-				//this.track.muted = !this.muted;
 				this.muted = !this.muted;
 			},
 			// загрузить дорожку как файл
@@ -170,20 +195,19 @@
 			setVolumeLevel(val) {
 				this.track.volume = val;
 				this.muted = false;
-				//this.track.muted = false;
 			},
 			// запуск таймера, обновление времени возпроизведения, позиции ползунка
 			startTimer() {
-				this.timer = setInterval(() => {
-					let progressPercentVal = Math.ceil(this.track.currentTime / this.totalTime * 100);
-					this.currentTime = this.track.currentTime;
-					this.progress = progressPercentVal;
-				}, 500);
+				this.tickTimer = setInterval(() => {
+					this.currentTime = Math.ceil(this.track.currentTime);
+					this.progress = Math.ceil(this.track.currentTime / this.totalTime * 100);
+					this.listenTimer += 1; // накапливаем прослушанное время в сек
+				}, 1000);
 			},
 			// остановить и очистить таймер
 			stopTimer() {
-				clearInterval(this.timer);
-				this.timer = null;
+				clearInterval(this.tickTimer);
+				this.tickTimer = 0;
 			},
 			// изменить текущее время переменной и объекта audio
 			changeTrackTime(val) {
@@ -213,16 +237,17 @@
 			}
 		},
 		created() {
-			console.log(this.$props.url);
 			// проверка на поддержку audio API браузером
-			let testAudioTag = document.createElement('audio');
-			if (testAudioTag.canPlayType === undefined || testAudioTag.canPlayType('audio/mpeg') === '') {
-				this.html5Supported = false;
-				return; // останавливаем выполнение этапа created
-			}
-			// удаление элемента и очистка ссылки на него
-			testAudioTag.remove();
-			testAudioTag = null;
+			(() => {
+				let testAudioTag = document.createElement('audio');
+				if (testAudioTag.canPlayType === undefined || testAudioTag.canPlayType('audio/mpeg') === '') {
+					this.html5Supported = false;
+					return; // останавливаем выполнение этапа created
+				}
+				// удаление элемента и очистка ссылки на него
+				testAudioTag.remove();
+				testAudioTag = null;
+			})();
 
 			if (this.$props.url === '') return;
 			fetch(this.$props.url, {
@@ -231,12 +256,22 @@
 			}).then((response) => {
 				console.assert(response.ok, 'post-audio-player: не найден аудио-файл по указнному пути');
 			});
+
 			// создаём экземпляр аудио
+			(() => {
+				let track = document.createElement('audio');
+				track.preload = 'metadata';
+				track.src = this.$props.url;
+				this.track = track;
+			})();
+			/* аналог создания
 			this.track = new Audio(this.$props.url);
+			this.track.preload = 'metadata';*/
 
 			// предзагрузка метаданных трека
 			this.track.preload = 'metadata';
 
+			// ПОЛУЧАЕМ ИЗ МЕТАДАННЫХ ТРЕКА ОБЩЕЕ ВРЕМЯ
 			// canplaythrough - когда трек получил метаданные и загрузился достаточно, чтобы возпроизвести без задержек
 			// похожее событие loadeddata - окончание загрузки первого фрейма
 			this.track.addEventListener('canplaythrough', () => {
